@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>ZENITH COMMANDER | Kontrol Merkezi</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root { --glass: rgba(10, 12, 16, 0.98); --neon: #00d2ff; --danger: #ff0044; --success: #00ff88; --warn: #ffaa00; }
+        body { margin:0; background:#020202; color:#e0e0e0; font-family:'Segoe UI', sans-serif; overflow:hidden; }
+        .app { display: flex; height: 100vh; width: 100vw; }
+
+        .sidebar { width: 380px; padding: 15px; background: var(--glass); backdrop-filter: blur(30px); border-right: 1px solid rgba(255,255,255,0.1); display:flex; flex-direction:column; gap:8px; z-index:2000; height: 100vh; box-sizing: border-box; }
+        .brand { font-size: 20px; font-weight: 900; color: var(--neon); display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        
+        /* MOD ŞALTERLERİ - TEPKİSEL (FIX) */
+        .mode-toggle { display: flex; gap: 4px; background: rgba(255,255,255,0.05); padding: 4px; border-radius: 10px; }
+        .m-btn { border:none; background:#333; color:#fff; font-size:10px; padding:6px 12px; cursor:pointer; border-radius:7px; font-weight:900; transition: 0.2s; }
+        .m-active { background: var(--neon) !important; color: black !important; box-shadow: 0 0 10px var(--neon); }
+
+        .card { background: rgba(255,255,255,0.02); border-radius: 14px; padding: 12px; border: 1px solid rgba(255,255,255,0.08); transition: 0.3s; flex-shrink: 0; }
+        .big-val { font-size: 38px; font-weight: 900; color: #fff; line-height: 1; }
+        .score-display { width: 65px; height: 65px; border-radius: 50%; border: 4px solid var(--success); display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 900; }
+        
+        @keyframes neon-red { from { box-shadow: 0 0 5px var(--danger); border-color: var(--danger); } to { box-shadow: 0 0 25px var(--danger); border-color: #ff88aa; } }
+        .card-danger { animation: neon-red 0.4s infinite alternate !important; background: rgba(255,0,68,0.2) !important; }
+
+        .drive-btn { width: 100%; padding: 12px; border-radius: 10px; border: none; font-weight: 900; cursor: pointer; font-size: 13px; transition: 0.3s; }
+        #startBtn { background: var(--success); color: #000; }
+        #stopBtn { background: var(--danger); color: #fff; display: none; }
+
+        /* RAPOR PENCERESİ - PREMIUM DESIGN */
+        #reportModal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 340px; background: #111418; border: 1px solid var(--neon); border-radius: 24px; padding: 25px; z-index: 3000; display: none; box-shadow: 0 0 100px rgba(0,0,0,1); }
+        .rep-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+
+        #map { flex-grow:1; z-index:1; cursor: crosshair; }
+        .chart-container { height: 90px; }
+    </style>
+</head>
+<body>
+
+<div id="reportModal">
+    <div style="text-align:center; margin-bottom:15px;"><span style="color:var(--neon); font-weight:900; letter-spacing:2px;">SÜRÜŞ PERFORMANS RAPORU</span></div>
+    <div class="rep-row"><span>⏱️ Toplam Süre:</span> <b id="repTime">00:00</b></div>
+    <div class="rep-row"><span>🏆 Final Skoru:</span> <b id="repScore" style="color:var(--success)">100</b></div>
+    <div class="rep-row"><span>🚀 Hız İhlalleri:</span> <b id="repSpeed" style="color:var(--warn)">0</b></div>
+    <div class="rep-row"><span>🛑 Sert Frenler:</span> <b id="repFren" style="color:var(--danger)">0</b></div>
+    <div class="rep-row"><span>📍 Bölge İhlalleri:</span> <b id="repZone" style="color:var(--danger)">0</b></div>
+    <button onclick="location.reload()" class="drive-btn" style="background:var(--neon); color:#000; margin-top:20px;">YENİ ANALİZ BAŞLAT</button>
+</div>
+
+<div class="app">
+    <div class="sidebar">
+        <div class="brand">
+            <span>ZENITH PRO</span>
+            <div class="mode-toggle">
+                <button class="m-btn m-active" id="btnDark" onclick="toggleMap('dark')">KOYU</button>
+                <button class="m-btn" id="btnLight" onclick="toggleMap('light')">AÇIK</button>
+            </div>
+        </div>
+
+        <div class="card" id="statusCard" style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <h3 style="font-size:10px; color:#666; margin:0">SÜRÜCÜ PUANI</h3>
+                <div id="ratingText" style="font-weight:900; color:var(--success); font-size:15px; margin-top:5px;">STABİL</div>
+            </div>
+            <div class="score-display" id="scoreVal">100</div>
+        </div>
+
+        <div class="card">
+            <button id="startBtn" class="drive-btn" onclick="startDrive()">SÜRÜŞÜ BAŞLAT</button>
+            <button id="stopBtn" class="drive-btn" onclick="stopDrive()">SÜRÜŞÜ BİTİR</button>
+            <div id="timerDisplay" style="text-align:center; margin-top:8px; color:var(--neon); font-size:18px; font-weight:bold; font-family:monospace;">00:00:00</div>
+        </div>
+
+        <div class="card" id="speedCard">
+            <h3 style="font-size:10px; color:#666; margin:0">CANLI HIZ & LİMİT</h3>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div class="big-val" id="hizVal">0</div>
+                <div style="text-align:right">
+                    <span style="font-size:11px; color:var(--warn)">LİMİT: <b id="limitText">80</b></span>
+                    <input type="range" min="30" max="150" value="80" id="limitSlider">
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 style="font-size:10px; color:#666; margin:0">IVME DALGA ANALİZİ</h3>
+            <div class="chart-container"><canvas id="gChart"></canvas></div>
+        </div>
+
+        <div class="card" id="geoCard">
+            <h3 style="font-size:10px; color:#666; margin:0">BÖLGE KONTROLÜ</h3>
+            <div style="font-size:12px; margin-top:5px;">Yarıçap: <b id="radText">1000</b>m</div>
+            <input type="range" min="200" max="5000" value="1000" id="radiusSlider">
+        </div>
+
+        <div class="card" style="flex-grow:1; display:flex; flex-direction:column; justify-content:center; padding:10px;">
+             <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:bold;">
+                 <span style="color:var(--neon)">📡 <span id="uyduVal">0</span> Uydu Bağlı</span>
+                 <span id="connStatus" style="color:var(--success)">● ÇEVRİMİÇİ</span>
+             </div>
+        </div>
+    </div>
+    <div id="map"></div>
+</div>
+
+<script>
+    const firebaseConfig = { databaseURL: "https://esad-arac-takip-default-rtdb.firebaseio.com" };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    var map = L.map('map', { zoomControl: false }).setView([38.80, 30.53], 14);
+    var darkLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
+    var lightLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
+
+    var fencePos = L.latLng(38.80, 30.53), currentRadius = 1000, speedLimit = 80, score = 100;
+    var isDriving = false, startTime, timerInterval, counts = { speed: 0, fren: 0, zone: 0 };
+
+    var fenceLayer = L.layerGroup().addTo(map);
+    var fenceCircle, centerMarker, resizeMarker;
+
+    function syncFence() {
+        fenceLayer.clearLayers();
+        fenceCircle = L.circle(fencePos, { color: '#ff0044', fillOpacity: 0.1, weight: 2, radius: currentRadius, interactive: false }).addTo(fenceLayer);
+        centerMarker = L.marker(fencePos, { draggable: true }).addTo(fenceLayer);
+        centerMarker.on('drag', e => { fencePos = e.target.getLatLng(); syncFence(); });
+        
+        // Çap Ayar Noktası (FIX: Tam sınırda duracak)
+        var resizePos = L.latLng(fencePos.lat, fencePos.lng + (currentRadius / (111300 * Math.cos(fencePos.lat * Math.PI / 180))));
+        resizeMarker = L.marker(resizePos, { 
+            draggable: true, 
+            icon: L.divIcon({ html: '<div style="background:#fff;width:12px;height:12px;border-radius:50%;border:3px solid var(--danger);box-shadow:0 0 10px #000;"></div>', iconSize:[12,12] }) 
+        }).addTo(fenceLayer);
+        
+        resizeMarker.on('drag', e => { 
+            currentRadius = Math.round(fencePos.distanceTo(e.target.getLatLng())); 
+            document.getElementById('radText').innerText = currentRadius;
+            document.getElementById('radiusSlider').value = currentRadius;
+            fenceCircle.setRadius(currentRadius);
+        });
+    }
+    syncFence();
+    map.on('click', e => { fencePos = e.latlng; syncFence(); });
+
+    // MOD ŞALTERİ (FIX: Buton durumları aktifleşiyor)
+    function toggleMap(m) {
+        if(m==='dark') { 
+            map.addLayer(darkLayer); map.removeLayer(lightLayer);
+            document.getElementById('btnDark').classList.add('m-active');
+            document.getElementById('btnLight').classList.remove('m-active');
+        } else { 
+            map.addLayer(lightLayer); map.removeLayer(darkLayer);
+            document.getElementById('btnLight').classList.add('m-active');
+            document.getElementById('btnDark').classList.remove('m-active');
+        }
+    }
+
+    function startDrive() {
+        isDriving = true; score = 100; startTime = new Date(); counts = { speed: 0, fren: 0, zone: 0 };
+        document.getElementById('startBtn').style.display = 'none';
+        document.getElementById('stopBtn').style.display = 'block';
+        timerInterval = setInterval(() => {
+            let d = new Date() - startTime;
+            document.getElementById('timerDisplay').innerText = new Date(d).toISOString().substr(11, 8);
+        }, 1000);
+    }
+
+    function stopDrive() {
+        isDriving = false; clearInterval(timerInterval);
+        document.getElementById('repTime').innerText = document.getElementById('timerDisplay').innerText;
+        document.getElementById('repScore').innerText = Math.round(score);
+        document.getElementById('repSpeed').innerText = counts.speed;
+        document.getElementById('repFren').innerText = counts.fren;
+        document.getElementById('repZone').innerText = counts.zone;
+        document.getElementById('reportModal').style.display = 'block';
+    }
+
+    const gChart = new Chart(document.getElementById('gChart'), {
+        type: 'line',
+        data: { labels: Array(30).fill(''), datasets: [{ data: Array(30).fill(0), borderColor: '#00d2ff', borderWidth: 2, fill: true, backgroundColor: 'rgba(0, 210, 255, 0.05)', tension: 0.4, pointRadius: 0 }] },
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { min: -15, max: 15, display: false }, x: { display: false } }, plugins: { legend: { display: false } } }
+    });
+
+    var carMarker = L.marker([0, 0], { icon: L.divIcon({ html: "<div style='background:var(--neon);width:20px;height:20px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 15px var(--neon);'></div>", iconSize:[20,20] }) }).addTo(map);
+
+    document.getElementById('radiusSlider').oninput = function() { currentRadius = parseInt(this.value); syncFence(); document.getElementById('radText').innerText = this.value; };
+    document.getElementById('limitSlider').oninput = function() { speedLimit = parseInt(this.value); document.getElementById('limitText').innerText = this.value; db.ref("config").update({ hiz_limiti: parseFloat(this.value) }); };
+
+    db.ref("arac_1").on("value", snap => {
+        const d = snap.val(); if(!d) return;
+        document.getElementById("hizVal").innerText = Math.round(d.hiz);
+        document.getElementById("uyduVal").innerText = d.uydu;
+        gChart.data.datasets[0].data.shift(); gChart.data.datasets[0].data.push(d.ivme_y); gChart.update('none');
+
+        const sCard = document.getElementById("statusCard"), speedCard = document.getElementById("speedCard"), gCard = document.getElementById("geoCard"), rText = document.getElementById("ratingText");
+
+        if(d.durum === "SERT FREN!" || Math.abs(d.ivme_y) > 7.5) {
+            sCard.classList.add("card-danger"); rText.innerText = "TEHLİKE: SERT FREN"; rText.style.color = "var(--danger)";
+            if(isDriving) { score -= 1.5; counts.fren++; }
+        } else { sCard.classList.remove("card-danger"); rText.innerText = "STABİL"; rText.style.color = "var(--success)"; }
+
+        if(d.hiz > speedLimit) {
+            speedCard.classList.add("card-danger");
+            if(isDriving) { score -= 0.5; counts.speed++; }
+        } else speedCard.classList.remove("card-danger");
+
+        if(d.lat && d.lat !== 0) {
+            const pos = L.latLng(d.lat, d.lng); carMarker.setLatLng(pos); map.panTo(pos);
+            if(pos.distanceTo(fencePos) > currentRadius) {
+                gCard.classList.add("card-danger");
+                if(isDriving) { score -= 0.1; counts.zone++; }
+            } else gCard.classList.remove("card-danger");
+        }
+        document.getElementById("scoreVal").innerText = Math.round(Math.max(0, score));
+    });
+</script>
+</body>
+</html>
