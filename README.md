@@ -1,62 +1,60 @@
-# 🚌 Afyon Kocatepe Üniversitesi Ring Takip Sistemi
+# 🚌 Afyon Kocatepe University Campus Shuttle Tracker
 
 ![Project Status](https://img.shields.io/badge/Status-Active-success?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
 ![Focus](https://img.shields.io/badge/Focus-Campus%20Logistics-orange?style=for-the-badge)
 
-**Afyon Kocatepe Üniversitesi Ring Takip Sistemi**, kampüs içi ring araçlarının sefer saatlerini, güzergahlarını ve durak kalkışlarını dijital ortamda takip edebilmek için geliştirilmiş modern bir web uygulamasıdır. 
+**Afyon Kocatepe University Campus Shuttle Tracker** is a modern web application designed to digitally track the schedules, routes, and departure times of intra-campus shuttle vehicles. 
 
-Kampüs ulaşımında öğrencilerin zaman yönetimini optimize etmeyi ve bekleme sürelerindeki belirsizliği ortadan kaldırmayı hedefler.
-
----
-
-## ✨ Öne Çıkan Özellikler
-
-* **🗺️ Durak ve Güzergah Takibi:** Kampüs içi ring hatlarının arayüz üzerinden kolayca izlenebilmesi.
-* **⏰ Sefer Saatleri:** Güncel ring hareket saatleri ve kalkış periyotlarına hızlı erişim.
-* **📱 Mobil Uyumlu Tasarım:** Akıllı telefon ve tablet ekranlarında kusursuz çalışan esnek (responsive) arayüz.
-* **⚡ Hızlı Arayüz:** Karmaşıklıktan uzak, sade tasarımlı frontend mimarisi.
+It aims to optimize students' time management in campus transportation and eliminate uncertainty during waiting periods.
 
 ---
 
-## 🛠️ Kullanılan Teknolojiler
+## ✨ Key Features
+
+* **🗺️ Route & Stop Tracking:** Easily monitor intra-campus shuttle lines via the user interface.
+* **⏰ Schedules:** Quick access to current shuttle departure times and intervals.
+* **📱 Mobile-Responsive Design:** A flexible UI that works flawlessly on smartphone and tablet screens.
+* **⚡ Fast UI:** A clean, clutter-free, and fast frontend architecture.
+
+---
+
+## 🛠️ Technologies Used
 
 * **Frontend:** HTML5, CSS3, JavaScript
-* **Versiyon Kontrolü:** Git & GitHub
+* **Version Control:** Git & GitHub
 
 ---
 
-## 🚀 Kurulum ve Çalıştırma
+## 🚀 Installation and Setup
 
-Projeyi yerel makinenizde test etmek veya geliştirmek için aşağıdaki adımları izleyebilirsiniz:
+You can follow these steps to test or develop the project on your local machine:
 
-Proje klasörüne giriş yapın:
-
-Bash
-
-cd arac-takip-main
-
-Uygulamayı başlatın:
-
-index.html dosyasını doğrudan tarayıcınızda açın veya kod editörünüz üzerinden Live Server eklentisiyle çalıştırın.
-
-🎯 Projenin Amacı & Kazanımlar
-Bu proje, kampüs içi lojistiği dijitalleştirmek, öğrencilerin günlük yaşamını kolaylaştırmak ve web tabanlı bir takip platformunun arayüz/mimari tasarımını hayata geçirmek amacıyla geliştirilmiştir.
-
-🤝 Katkıda Bulunma
-Bu depoyu Fork'layın.
-
-Yeni bir özellik dalı (feature branch) oluşturun (git checkout -b feature/YeniOzellik).
-
-Değişikliklerinizi commit edin (git commit -m 'Add: Yeni özellik eklendi').
-
-Dalınızı push edin (git push origin feature/YeniOzellik).
-
-Bir Pull Request başlatın.
-
-📝 Lisans
-Bu proje MIT Lisansı altında lisanslanmıştır. Dilediğiniz gibi geliştirebilir ve kullanabilirsiniz.
-
-1. **Projeyi bilgisayarınıza indirin:**
+1. **Clone the repository:**
    ```bash
-   git clone [https://github.com/KULLANICI_ADIN/arac-takip-main.git](https://github.com/KULLANICI_ADIN/arac-takip-main.git)
+   git clone [https://github.com/pmp54zpkpd-hub/Campus-Shuttle-Tracker.git](https://github.com/pmp54zpkpd-hub/Campus-Shuttle-Tracker.git)
+
+   Navigate to the project directory:
+Bash
+cd Campus-Shuttle-Tracker
+
+Run the application:
+
+Open the index.html file directly in your web browser, or run it using the Live Server extension in your code editor.
+
+🎯 Project Purpose & Outcomes
+This project was developed to digitize campus logistics, simplify the daily lives of students, and implement the UI/UX architecture of a web-based tracking platform.
+
+🤝 Contributing
+Fork this repository.
+
+Create a new feature branch (git checkout -b feature/NewFeature).
+
+Commit your changes (git commit -m 'Add: New feature added').
+
+Push to the branch (git push origin feature/NewFeature).
+
+Open a Pull Request.
+
+📝 License
+This project is licensed under the MIT License. You are free to use, modify, and distribute it as you wish.
