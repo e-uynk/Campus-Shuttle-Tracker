@@ -67,5 +67,4 @@ This project is licensed under the MIT License. You are free to use, modify, and
 
 ### Donanım Kurulumu
 | Genel Donanım | 
-| :---: | :---: | :---: |
 | ![Donanım](DONANIM%20GÖRSEL.jpg) | 
