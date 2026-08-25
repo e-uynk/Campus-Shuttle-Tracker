@@ -58,22 +58,14 @@ Open a Pull Request.
 
 📝 License
 This project is licensed under the MIT License. You are free to use, modify, and distribute it as you wish.
-
 ## 📸 Proje Görselleri
 
-### 🖥️ Arayüz Görünümleri
-**Bilgisayar Görünümü:**
-![PC Görünüm](AFYON_MAP_PC.jpg)
+### Arayüz Görünümleri
+| Bilgisayar | Mobil |
+| :---: | :---: |
+| ![PC](AFYON%20MAP%20PC.jpg) | ![Tel](AFYON%20MAP%20TEL.jpeg) |
 
-**Mobil Görünüm:**
-![Mobil Görünüm](AFYON_MAP_TEL.jpeg)
-
-### ⚡ Donanım Kurulumu
-**Genel Donanım:**
-![Genel Donanım](DONANIM_GORSEL.jpg)
-
-**ESP Modülü:**
-![ESP Modülü](ESP_GORSEL.jpg)
-
-**GPS Modülü:**
-![GPS Modülü](GPS_GORSEL.jpg)
+### Donanım Kurulumu
+| Genel Donanım | 
+| :---: | :---: | :---: |
+| ![Donanım](DONANIM%20GÖRSEL.jpg) | 
