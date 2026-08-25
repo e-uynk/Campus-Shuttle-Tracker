@@ -66,5 +66,4 @@ This project is licensed under the MIT License. You are free to use, modify, and
 | ![PC](AFYON%20MAP%20PC.jpg) | ![Tel](AFYON%20MAP%20TEL.jpeg) |
 
 ### Donanım Kurulumu
-| Genel Donanım | 
 | ![Donanım](DONANIM%20GÖRSEL.jpg) | 
